@@ -19,16 +19,13 @@ class Poly :
 class Func :
     xk = [] #starting x
     dk = [] #gradient coeff
-    coeff1 = [4,1]
-    coeff2 = [-5,-6]
     def __init__(self, xk0, dk0) :
         self.xk = xk0
         self.dk = dk0
+    def newx(self, i, x) :
+        return self.xk[i]+self.dk[i]*x
     def eval(self, x) :
-        sum = 0
-        for i in range(0, len(self.coeff1)) :
-            sum += self.coeff1[i]*(self.xk[i]+self.dk[i]*x+self.coeff2[i])**2
-        return sum
+        return -4*self.newx(0,x)-2*self.newx(1,x)+self.newx(0,x)**2+self.newx(1,x)**2-5
 
 def golden(a, b, func, eps, minx) :
     while (b-a>eps) :
@@ -59,15 +56,21 @@ def subtract_lists(l1,l2) :
         sum += sqr(i[0]-i[1])
     return sqrt(sum)
 
+def equal(a, b, eps) :
+    return abs(a-b)<eps
+
 def Koshi(xk, g, eps, x) :
-    a = -99
-    b = 99
+    a = 0.
+    b = 1.
+    coeff = 100.
     while 1 :
         dk = []
         for i in unite_lists(g,xk) :
             dk.append(-i[0].eval(i[1]))
-        lambdak = [[]]
-        golden(a,b,Func(xk,dk),eps,lambdak)
+        lambdak = [b]
+        while equal(b,lambdak[0],eps) :
+            golden(a,b,Func(xk,dk),eps,lambdak)
+            b *= coeff
         print xk,dk,lambdak
         #count next xk
         xk1 = []
@@ -79,8 +82,8 @@ def Koshi(xk, g, eps, x) :
         xk = xk1
 
 #gradient of function 4(x1-5)^2+(x2-6)^2
-g = [Poly([-40,8]),Poly([-12,2])]
-xk = [0,0]
+g = [Poly([-4,2]),Poly([-2,2])]
+xk = [4,5]
 eps = 1e-5
 x = [[]]
 Koshi(xk,g,eps,x)
